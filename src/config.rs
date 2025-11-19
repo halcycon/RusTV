@@ -77,19 +77,15 @@ impl Default for Config {
 impl Config {
     /// Load configuration from a TOML file
     pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let content = fs::read_to_string(path.as_ref())
-            .context("Failed to read config file")?;
-        let config: Config = toml::from_str(&content)
-            .context("Failed to parse config file")?;
+        let content = fs::read_to_string(path.as_ref()).context("Failed to read config file")?;
+        let config: Config = toml::from_str(&content).context("Failed to parse config file")?;
         Ok(config)
     }
 
     /// Save configuration to a TOML file
     pub fn to_file<P: AsRef<Path>>(&self, path: P) -> Result<()> {
-        let content = toml::to_string_pretty(self)
-            .context("Failed to serialize config")?;
-        fs::write(path.as_ref(), content)
-            .context("Failed to write config file")?;
+        let content = toml::to_string_pretty(self).context("Failed to serialize config")?;
+        fs::write(path.as_ref(), content).context("Failed to write config file")?;
         Ok(())
     }
 

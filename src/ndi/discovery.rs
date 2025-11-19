@@ -42,11 +42,11 @@ impl NdiDiscovery {
                 // Simulate NDI source discovery
                 // In a real implementation, this would use the NDI SDK's find functionality
                 debug!("Scanning for NDI sources...");
-                
+
                 // For now, we'll create a mock discovery mechanism
                 // Real implementation would use ndi-sdk crate's finder
                 let discovered = Self::discover_ndi_sources().await;
-                
+
                 {
                     let mut sources_lock = sources.lock().unwrap();
                     *sources_lock = discovered;
@@ -75,20 +75,21 @@ impl NdiDiscovery {
     async fn discover_ndi_sources() -> Vec<NdiSource> {
         // This is a placeholder implementation
         // Real implementation would use the NDI SDK's finder API
-        // 
+        //
         // Example real implementation would look like:
         // let finder = ndi::Finder::new();
         // finder.wait_for_sources(timeout);
         // let sources = finder.get_current_sources();
-        
+
         debug!("Discovering NDI sources on network...");
-        
+
         // Return mock sources for demonstration
         // In production, this would query the actual NDI network
         vec![]
     }
 
     /// Manually add a source (useful for static sources)
+    #[allow(dead_code)]
     pub fn add_source(&self, source: NdiSource) {
         let mut sources = self.sources.lock().unwrap();
         if !sources.iter().any(|s| s.url == source.url) {
@@ -98,6 +99,7 @@ impl NdiDiscovery {
     }
 
     /// Remove a source by URL
+    #[allow(dead_code)]
     pub fn remove_source(&self, url: &str) -> bool {
         let mut sources = self.sources.lock().unwrap();
         let len_before = sources.len();
@@ -127,10 +129,10 @@ mod tests {
     fn test_add_remove_source() {
         let discovery = NdiDiscovery::new();
         let source = NdiSource::new("Test Source".to_string(), "ndi://test".to_string());
-        
+
         discovery.add_source(source.clone());
         assert_eq!(discovery.get_sources().len(), 1);
-        
+
         assert!(discovery.remove_source(&source.url));
         assert_eq!(discovery.get_sources().len(), 0);
     }

@@ -18,6 +18,7 @@ impl NdiSource {
         }
     }
 
+    #[allow(dead_code)]
     pub fn with_groups(mut self, groups: Vec<String>) -> Self {
         self.groups = groups;
         self

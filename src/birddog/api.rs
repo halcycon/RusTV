@@ -28,6 +28,7 @@ pub struct CameraStatus {
 
 impl BirdDogClient {
     /// Create a new BirdDog API client
+    #[allow(dead_code)]
     pub fn new(camera_ip: &str) -> Self {
         let base_url = format!("http://{}", camera_ip);
         let client = Client::builder()
@@ -41,11 +42,12 @@ impl BirdDogClient {
     /// Get camera information
     pub async fn get_info(&self) -> Result<CameraInfo> {
         info!("Fetching camera info from {}", self.base_url);
-        
+
         // BirdDog API endpoint for camera info
         let url = format!("{}/api/camera/info", self.base_url);
-        
-        let response = self.client
+
+        let response = self
+            .client
             .get(&url)
             .send()
             .await
@@ -63,10 +65,11 @@ impl BirdDogClient {
     /// Get camera status
     pub async fn get_status(&self) -> Result<CameraStatus> {
         debug!("Fetching camera status from {}", self.base_url);
-        
+
         let url = format!("{}/api/camera/status", self.base_url);
-        
-        let response = self.client
+
+        let response = self
+            .client
             .get(&url)
             .send()
             .await
@@ -83,11 +86,12 @@ impl BirdDogClient {
     /// Send PTZ command to camera
     pub async fn send_ptz_command(&self, command: &PtzCommand) -> Result<()> {
         info!("Sending PTZ command: {:?}", command);
-        
+
         let url = format!("{}/api/ptz/control", self.base_url);
         let params = command.to_birddog_api_params();
-        
-        let response = self.client
+
+        let response = self
+            .client
             .post(&url)
             .form(&params)
             .send()
@@ -105,10 +109,11 @@ impl BirdDogClient {
     /// Get current PTZ position
     pub async fn get_ptz_position(&self) -> Result<PtzPosition> {
         debug!("Fetching PTZ position from {}", self.base_url);
-        
+
         let url = format!("{}/api/ptz/position", self.base_url);
-        
-        let response = self.client
+
+        let response = self
+            .client
             .get(&url)
             .send()
             .await
@@ -124,15 +129,19 @@ impl BirdDogClient {
 
     /// Move camera to absolute position
     pub async fn move_absolute(&self, position: PtzPosition) -> Result<()> {
-        self.send_ptz_command(&PtzCommand::MoveAbsolute(position)).await
+        self.send_ptz_command(&PtzCommand::MoveAbsolute(position))
+            .await
     }
 
     /// Move camera relative to current position
+    #[allow(dead_code)]
     pub async fn move_relative(&self, pan: f64, tilt: f64, zoom: f64) -> Result<()> {
-        self.send_ptz_command(&PtzCommand::MoveRelative { pan, tilt, zoom }).await
+        self.send_ptz_command(&PtzCommand::MoveRelative { pan, tilt, zoom })
+            .await
     }
 
     /// Stop camera movement
+    #[allow(dead_code)]
     pub async fn stop(&self) -> Result<()> {
         self.send_ptz_command(&PtzCommand::Stop).await
     }
@@ -143,21 +152,26 @@ impl BirdDogClient {
     }
 
     /// Save current position as preset
+    #[allow(dead_code)]
     pub async fn save_preset(&self, preset_id: u8) -> Result<()> {
-        self.send_ptz_command(&PtzCommand::SavePreset(preset_id)).await
+        self.send_ptz_command(&PtzCommand::SavePreset(preset_id))
+            .await
     }
 
     /// Recall preset position
     pub async fn recall_preset(&self, preset_id: u8) -> Result<()> {
-        self.send_ptz_command(&PtzCommand::RecallPreset(preset_id)).await
+        self.send_ptz_command(&PtzCommand::RecallPreset(preset_id))
+            .await
     }
 
     /// Set focus value
+    #[allow(dead_code)]
     pub async fn set_focus(&self, focus: f64) -> Result<()> {
         self.send_ptz_command(&PtzCommand::SetFocus(focus)).await
     }
 
     /// Enable auto focus
+    #[allow(dead_code)]
     pub async fn auto_focus(&self) -> Result<()> {
         self.send_ptz_command(&PtzCommand::AutoFocus).await
     }

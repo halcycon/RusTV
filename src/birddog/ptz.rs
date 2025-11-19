@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 /// PTZ (Pan-Tilt-Zoom) position
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PtzPosition {
-    pub pan: f64,   // -1.0 to 1.0
-    pub tilt: f64,  // -1.0 to 1.0
-    pub zoom: f64,  // 0.0 to 1.0
+    pub pan: f64,  // -1.0 to 1.0
+    pub tilt: f64, // -1.0 to 1.0
+    pub zoom: f64, // 0.0 to 1.0
 }
 
 impl PtzPosition {
@@ -17,6 +17,7 @@ impl PtzPosition {
         }
     }
 
+    #[allow(dead_code)]
     pub fn home() -> Self {
         Self {
             pan: 0.0,
@@ -70,9 +71,7 @@ impl PtzCommand {
                 ("command".to_string(), "recall_preset".to_string()),
                 ("preset".to_string(), id.to_string()),
             ],
-            PtzCommand::SetFocus(value) => vec![
-                ("focus".to_string(), value.to_string()),
-            ],
+            PtzCommand::SetFocus(value) => vec![("focus".to_string(), value.to_string())],
             PtzCommand::AutoFocus => vec![("command".to_string(), "autofocus".to_string())],
         }
     }

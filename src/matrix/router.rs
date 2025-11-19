@@ -34,6 +34,7 @@ impl MatrixRouter {
     }
 
     /// Add an input source
+    #[allow(dead_code)]
     pub fn add_input(&mut self, source: NdiSource) {
         if !self.inputs.iter().any(|s| s.url == source.url) {
             info!("Added input: {}", source.name);
@@ -52,7 +53,11 @@ impl MatrixRouter {
     /// Create a route from input to output
     pub fn route(&mut self, input: &str, output: &str) -> Result<()> {
         // Validate input exists
-        if !self.inputs.iter().any(|s| s.url == input || s.name == input) {
+        if !self
+            .inputs
+            .iter()
+            .any(|s| s.url == input || s.name == input)
+        {
             anyhow::bail!("Input '{}' not found", input);
         }
 
@@ -78,6 +83,7 @@ impl MatrixRouter {
     }
 
     /// Get current route for an output
+    #[allow(dead_code)]
     pub fn get_route(&self, output: &str) -> Option<&String> {
         self.routes.get(output)
     }
@@ -101,12 +107,14 @@ impl MatrixRouter {
     }
 
     /// Clear all routes
+    #[allow(dead_code)]
     pub fn clear_routes(&mut self) {
         info!("Clearing all routes");
         self.routes.clear();
     }
 
     /// Load routes from a configuration
+    #[allow(dead_code)]
     pub fn load_routes(&mut self, routes: Vec<Route>) -> Result<()> {
         for route in routes {
             self.route(&route.input, &route.output)
@@ -129,14 +137,17 @@ mod tests {
     #[test]
     fn test_matrix_routing() {
         let mut router = MatrixRouter::new();
-        
+
         let source = NdiSource::new("Camera 1".to_string(), "ndi://cam1".to_string());
         router.add_input(source);
         router.add_output("Output 1".to_string());
-        
+
         assert!(router.route("ndi://cam1", "Output 1").is_ok());
-        assert_eq!(router.get_route("Output 1"), Some(&"ndi://cam1".to_string()));
-        
+        assert_eq!(
+            router.get_route("Output 1"),
+            Some(&"ndi://cam1".to_string())
+        );
+
         router.unroute("Output 1");
         assert_eq!(router.get_route("Output 1"), None);
     }
@@ -144,7 +155,7 @@ mod tests {
     #[test]
     fn test_invalid_routing() {
         let mut router = MatrixRouter::new();
-        
+
         // Try to route without adding input/output
         assert!(router.route("ndi://invalid", "Output 1").is_err());
     }

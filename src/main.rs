@@ -104,9 +104,9 @@ enum BirdDogAction {
 #[tokio::main]
 async fn main() -> Result<()> {
     env_logger::init();
-    
+
     let cli = Cli::parse();
-    
+
     // Load or create configuration
     let config = Config::ensure_default_config(&cli.config)?;
     info!("Configuration loaded from: {:?}", cli.config);
@@ -169,13 +169,13 @@ async fn cmd_discover(continuous: bool) -> Result<()> {
 
 async fn cmd_view(source_name: &str) -> Result<()> {
     info!("Viewing NDI source: {}", source_name);
-    
+
     let mut receiver = NdiReceiver::new();
     let source = NdiSource::new(source_name.to_string(), format!("ndi://{}", source_name));
-    
+
     receiver.connect(source)?;
     info!("Connected to source. Press Ctrl+C to stop.");
-    
+
     // Simulate receiving frames
     loop {
         tokio::time::sleep(tokio::time::Duration::from_millis(33)).await; // ~30fps
@@ -184,19 +184,19 @@ async fn cmd_view(source_name: &str) -> Result<()> {
             break;
         }
     }
-    
+
     receiver.disconnect();
     Ok(())
 }
 
 async fn cmd_matrix(action: MatrixAction, config: &Config) -> Result<()> {
     let mut router = MatrixRouter::new();
-    
+
     // Initialize with config
     for output in &config.matrix.outputs {
         router.add_output(output.clone());
     }
-    
+
     match action {
         MatrixAction::List => {
             let routes = router.get_all_routes();
@@ -231,13 +231,13 @@ async fn cmd_matrix(action: MatrixAction, config: &Config) -> Result<()> {
             }
         }
     }
-    
+
     Ok(())
 }
 
 async fn cmd_birddog(camera_ip: &str, action: BirdDogAction) -> Result<()> {
     let client = BirdDogClient::new(camera_ip);
-    
+
     match action {
         BirdDogAction::Info => {
             let info = client.get_info().await?;
@@ -268,14 +268,16 @@ async fn cmd_birddog(camera_ip: &str, action: BirdDogAction) -> Result<()> {
         BirdDogAction::Move { pan, tilt, zoom } => {
             let position = PtzPosition::new(pan, tilt, zoom);
             client.move_absolute(position).await?;
-            info!("Camera moved to position: pan={}, tilt={}, zoom={}", pan, tilt, zoom);
+            info!(
+                "Camera moved to position: pan={}, tilt={}, zoom={}",
+                pan, tilt, zoom
+            );
         }
         BirdDogAction::Preset { id } => {
             client.recall_preset(id).await?;
             info!("Recalled preset {}", id);
         }
     }
-    
+
     Ok(())
 }
-
