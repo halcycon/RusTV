@@ -1,0 +1,40 @@
+[package]
+name = "rustv"
+version = "0.1.0"
+edition = "2021"
+authors = ["RusTV Contributors"]
+description = "NDI Matrix Viewer implemented in Rust with autodiscovery and BirdDog camera integration"
+license = "MIT"
+
+[dependencies]
+# NDI SDK bindings
+ndi-sdk = "0.2"
+
+# Async runtime
+tokio = { version = "1.35", features = ["full"] }
+async-trait = "0.1"
+
+# Networking and discovery
+mdns-sd = "0.11"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# HTTP client for BirdDog API
+reqwest = { version = "0.11", features = ["json"] }
+
+# CLI and configuration
+clap = { version = "4.4", features = ["derive"] }
+toml = "0.8"
+
+# Logging
+log = "0.4"
+env_logger = "0.11"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+[dev-dependencies]
+tempfile = "3.8"
