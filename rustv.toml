@@ -14,3 +14,16 @@ routes = []
 
 [birddog]
 cameras = []
+
+[gui]
+# Default layout to use on startup
+# Options: "Grid2x2", "Grid3x3", "Grid4x4", "PiP", "OneAndSeven", "OneAndNine"
+default_layout = "Grid2x2"
+window_width = 1280.0
+window_height = 720.0
+
+[companion]
+# Enable Companion integration for streamdeck control
+enabled = false
+host = "localhost"
+port = 8888

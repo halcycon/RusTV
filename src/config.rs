@@ -1,3 +1,4 @@
+use crate::gui::layouts::Layout;
 use crate::matrix::Route;
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
@@ -13,6 +14,12 @@ pub struct Config {
     pub matrix: MatrixConfig,
     /// BirdDog camera configurations
     pub birddog: BirdDogConfig,
+    /// GUI settings
+    #[serde(default)]
+    pub gui: GuiConfig,
+    /// Companion integration settings
+    #[serde(default)]
+    pub companion: CompanionConfig,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -52,6 +59,68 @@ pub struct CameraConfig {
     pub ndi_name: String,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GuiConfig {
+    /// Default layout to use on startup
+    #[serde(default)]
+    pub default_layout: Layout,
+    /// Window width
+    #[serde(default = "default_window_width")]
+    pub window_width: f32,
+    /// Window height
+    #[serde(default = "default_window_height")]
+    pub window_height: f32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CompanionConfig {
+    /// Enable Companion integration
+    #[serde(default)]
+    pub enabled: bool,
+    /// Companion server host
+    #[serde(default = "default_companion_host")]
+    pub host: String,
+    /// Companion server port
+    #[serde(default = "default_companion_port")]
+    pub port: u16,
+}
+
+fn default_window_width() -> f32 {
+    1280.0
+}
+
+fn default_window_height() -> f32 {
+    720.0
+}
+
+fn default_companion_host() -> String {
+    "localhost".to_string()
+}
+
+fn default_companion_port() -> u16 {
+    8888
+}
+
+impl Default for GuiConfig {
+    fn default() -> Self {
+        Self {
+            default_layout: Layout::default(),
+            window_width: default_window_width(),
+            window_height: default_window_height(),
+        }
+    }
+}
+
+impl Default for CompanionConfig {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            host: default_companion_host(),
+            port: default_companion_port(),
+        }
+    }
+}
+
 impl Default for Config {
     fn default() -> Self {
         Self {
@@ -70,6 +139,8 @@ impl Default for Config {
                 routes: vec![],
             },
             birddog: BirdDogConfig { cameras: vec![] },
+            gui: GuiConfig::default(),
+            companion: CompanionConfig::default(),
         }
     }
 }

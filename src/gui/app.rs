@@ -70,7 +70,7 @@ impl MatrixViewerApp {
         let discovery = Arc::new(NdiDiscovery::new());
         
         Self {
-            layout: Layout::default(),
+            layout: config.gui.default_layout,
             router: Arc::new(Mutex::new(router)),
             discovery,
             available_sources: Vec::new(),
@@ -341,7 +341,7 @@ impl eframe::App for MatrixViewerApp {
 pub fn run_gui(config: Config) -> Result<()> {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
-            .with_inner_size([1280.0, 720.0])
+            .with_inner_size([config.gui.window_width, config.gui.window_height])
             .with_min_inner_size([800.0, 600.0])
             .with_title("RusTV - NDI Matrix Viewer"),
         ..Default::default()

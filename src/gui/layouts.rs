@@ -14,6 +14,8 @@ pub enum Layout {
     PiP,
     /// 1 main + 7 small views
     OneAndSeven,
+    /// 1 main + 9 small views
+    OneAndNine,
 }
 
 impl Layout {
@@ -25,6 +27,7 @@ impl Layout {
             Layout::Grid4x4 => 16,
             Layout::PiP => 2,
             Layout::OneAndSeven => 8,
+            Layout::OneAndNine => 10,
         }
     }
 
@@ -36,6 +39,7 @@ impl Layout {
             Layout::Grid4x4 => "4x4 Grid",
             Layout::PiP => "Picture in Picture",
             Layout::OneAndSeven => "1+7 Layout",
+            Layout::OneAndNine => "1+9 Layout",
         }
     }
 
@@ -47,6 +51,7 @@ impl Layout {
             Layout::Grid4x4,
             Layout::PiP,
             Layout::OneAndSeven,
+            Layout::OneAndNine,
         ]
     }
 
@@ -99,19 +104,59 @@ impl Layout {
                 ]
             }
             Layout::OneAndSeven => {
-                let small_width = 0.25;
+                // Main view in top-left corner: 75% width, 75% height
+                // 4 small views along the right edge (25% width each, 18.75% height)
+                // 3 small views along the bottom edge (25% width each, 25% height)
                 let main_width = 0.75;
-                let main_height = 1.0;
+                let main_height = 0.75;
+                let small_width_right = 0.25;
+                let small_width_bottom = 0.25;
+                let small_height_right = main_height / 4.0;
+                let small_height_bottom = 0.25;
                 
                 let mut rects = vec![
-                    (0.0, 0.0, main_width, main_height),  // Main view (left 75%)
+                    (0.0, 0.0, main_width, main_height),  // Main view (top-left, 75% x 75%)
                 ];
                 
-                // 7 small views on the right side
-                for i in 0..7 {
-                    let y = i as f32 / 7.0;
-                    let h = 1.0 / 7.0;
-                    rects.push((0.75, y, small_width, h));
+                // 4 small views on the right edge
+                for i in 0..4 {
+                    let y = i as f32 * small_height_right;
+                    rects.push((main_width, y, small_width_right, small_height_right));
+                }
+                
+                // 3 small views along the bottom edge
+                for i in 0..3 {
+                    let x = i as f32 * small_width_bottom;
+                    rects.push((x, main_height, small_width_bottom, small_height_bottom));
+                }
+                
+                rects
+            }
+            Layout::OneAndNine => {
+                // Main view in top-left corner: 75% width, 75% height
+                // 6 small views along the right edge (25% width each, 12.5% height)
+                // 3 small views along the bottom edge (25% width each, 25% height)
+                let main_width = 0.75;
+                let main_height = 0.75;
+                let small_width_right = 0.25;
+                let small_width_bottom = 0.25;
+                let small_height_right = main_height / 6.0;
+                let small_height_bottom = 0.25;
+                
+                let mut rects = vec![
+                    (0.0, 0.0, main_width, main_height),  // Main view (top-left, 75% x 75%)
+                ];
+                
+                // 6 small views on the right edge
+                for i in 0..6 {
+                    let y = i as f32 * small_height_right;
+                    rects.push((main_width, y, small_width_right, small_height_right));
+                }
+                
+                // 3 small views along the bottom edge
+                for i in 0..3 {
+                    let x = i as f32 * small_width_bottom;
+                    rects.push((x, main_height, small_width_bottom, small_height_bottom));
                 }
                 
                 rects
@@ -131,6 +176,7 @@ mod tests {
         assert_eq!(Layout::Grid4x4.view_count(), 16);
         assert_eq!(Layout::PiP.view_count(), 2);
         assert_eq!(Layout::OneAndSeven.view_count(), 8);
+        assert_eq!(Layout::OneAndNine.view_count(), 10);
     }
 
     #[test]
@@ -143,5 +189,28 @@ mod tests {
         
         let rects = Layout::OneAndSeven.calculate_view_rects();
         assert_eq!(rects.len(), 8);
+        
+        let rects = Layout::OneAndNine.calculate_view_rects();
+        assert_eq!(rects.len(), 10);
+    }
+
+    #[test]
+    fn test_one_and_seven_layout_positioning() {
+        let rects = Layout::OneAndSeven.calculate_view_rects();
+        // Main view should be at top-left corner
+        assert_eq!(rects[0], (0.0, 0.0, 0.75, 0.75));
+        // Small views should be on the right and bottom edges
+        assert!(rects[1].0 >= 0.75); // Right edge views have x >= 0.75
+        assert!(rects[5].1 >= 0.75); // Bottom edge views have y >= 0.75
+    }
+
+    #[test]
+    fn test_one_and_nine_layout_positioning() {
+        let rects = Layout::OneAndNine.calculate_view_rects();
+        // Main view should be at top-left corner
+        assert_eq!(rects[0], (0.0, 0.0, 0.75, 0.75));
+        // Small views should be on the right and bottom edges
+        assert!(rects[1].0 >= 0.75); // Right edge views have x >= 0.75
+        assert!(rects[7].1 >= 0.75); // Bottom edge views have y >= 0.75
     }
 }

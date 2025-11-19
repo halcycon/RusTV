@@ -1,4 +1,5 @@
 mod birddog;
+mod companion;
 mod config;
 mod gui;
 mod matrix;
@@ -7,6 +8,7 @@ mod ndi;
 use anyhow::Result;
 use birddog::{BirdDogClient, PtzPosition};
 use clap::{Parser, Subcommand};
+use companion::CompanionClient;
 use config::Config;
 use log::{error, info};
 use matrix::MatrixRouter;
@@ -51,6 +53,11 @@ enum Commands {
         camera_ip: String,
         #[command(subcommand)]
         action: BirdDogAction,
+    },
+    /// Companion integration commands
+    Companion {
+        #[command(subcommand)]
+        action: CompanionAction,
     },
     /// Generate default configuration file
     InitConfig,
@@ -104,6 +111,38 @@ enum BirdDogAction {
     },
 }
 
+#[derive(Subcommand)]
+enum CompanionAction {
+    /// Test connection to Companion server
+    Test,
+    /// Set layout via Companion
+    SetLayout {
+        /// Layout name
+        layout: String,
+    },
+    /// Create a route via Companion
+    Route {
+        /// Input source
+        input: String,
+        /// Output destination
+        output: String,
+    },
+    /// Remove a route via Companion
+    Unroute {
+        /// Output destination
+        output: String,
+    },
+    /// Press a button
+    PressButton {
+        /// Page number
+        page: u8,
+        /// Bank number
+        bank: u8,
+    },
+    /// Get feedback from Companion
+    Feedback,
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
     env_logger::init();
@@ -130,6 +169,9 @@ async fn main() -> Result<()> {
         }
         Some(Commands::BirdDog { camera_ip, action }) => {
             cmd_birddog(&camera_ip, action).await?;
+        }
+        Some(Commands::Companion { action }) => {
+            cmd_companion(action, &config).await?;
         }
         Some(Commands::InitConfig) => {
             config.to_file(&cli.config)?;
@@ -282,6 +324,63 @@ async fn cmd_birddog(camera_ip: &str, action: BirdDogAction) -> Result<()> {
         BirdDogAction::Preset { id } => {
             client.recall_preset(id).await?;
             info!("Recalled preset {}", id);
+        }
+    }
+
+    Ok(())
+}
+
+async fn cmd_companion(action: CompanionAction, config: &Config) -> Result<()> {
+    let client = CompanionClient::new(
+        &config.companion.host,
+        config.companion.port,
+        config.companion.enabled,
+    );
+
+    if !client.is_enabled() {
+        error!("Companion integration is disabled in configuration");
+        return Ok(());
+    }
+
+    match action {
+        CompanionAction::Test => {
+            info!("Testing connection to Companion server...");
+            if client.test_connection().await {
+                info!("✓ Successfully connected to Companion server");
+            } else {
+                error!("✗ Failed to connect to Companion server");
+            }
+        }
+        CompanionAction::SetLayout { layout } => {
+            client.set_layout(&layout).await?;
+            info!("Layout changed to: {}", layout);
+        }
+        CompanionAction::Route { input, output } => {
+            client.route(&input, &output).await?;
+            info!("Route created: {} -> {}", input, output);
+        }
+        CompanionAction::Unroute { output } => {
+            client.unroute(&output).await?;
+            info!("Route removed for output: {}", output);
+        }
+        CompanionAction::PressButton { page, bank } => {
+            client.press_button(page, bank).await?;
+            info!("Button pressed: page={}, bank={}", page, bank);
+        }
+        CompanionAction::Feedback => {
+            let feedback = client.get_feedback().await?;
+            println!("Companion Feedback:");
+            if let Some(layout) = feedback.layout {
+                println!("  Current Layout: {}", layout);
+            }
+            println!("  Routes: {}", feedback.routes.len());
+            for route in feedback.routes {
+                println!("    {} -> {}", route.input, route.output);
+            }
+            println!("  Sources: {}", feedback.sources.len());
+            for source in feedback.sources {
+                println!("    - {}", source);
+            }
         }
     }
 
