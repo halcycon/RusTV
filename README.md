@@ -11,10 +11,12 @@ A professional NDI (Network Device Interface) matrix viewer and router implement
   - 3x3 Grid (9 views)
   - 4x4 Grid (16 views)
   - Picture in Picture (PiP)
-  - 1+7 Layout (1 main + 7 small views)
+  - 1+7 Layout (1 main + 7 small views) - main view in top-left, smaller views on right and bottom edges
+  - 1+9 Layout (1 main + 9 small views) - main view in top-left, smaller views on right and bottom edges
 - **Interactive Routing**: Click-to-route interface for easy source assignment
 - **Real-time Source Discovery**: Automatically discover and list available NDI sources
 - **Visual Feedback**: See active routes and available inputs at a glance
+- **Configurable Window Size**: Set default window dimensions in configuration
 
 ### NDI Integration
 - **Automatic Source Discovery**: Continuously discover NDI sources on your network
@@ -32,6 +34,13 @@ A professional NDI (Network Device Interface) matrix viewer and router implement
 - **Preset Management**: Save and recall camera presets
 - **Camera Status**: Monitor camera status, temperature, and streaming state
 - **Focus Control**: Manual focus control and auto-focus support
+
+### Companion Integration
+- **Streamdeck Control**: Interface with Companion software for enhanced streamdeck functionality
+- **Layout Control**: Change layouts via Companion buttons
+- **Route Management**: Create and remove routes from streamdeck
+- **Feedback**: Get current state feedback for button updates
+- **Configurable**: Enable/disable and configure Companion connection settings
 
 ## Installation
 
@@ -63,7 +72,7 @@ rustv
 
 The GUI provides:
 - **Matrix View**: Visual grid showing all outputs and their assigned inputs
-- **Layout Selection**: Choose from different view layouts (2x2, 3x3, 4x4, PiP, 1+7)
+- **Layout Selection**: Choose from different view layouts (2x2, 3x3, 4x4, PiP, 1+7, 1+9)
 - **Routing Control**: 
   1. Click "🔄 Refresh Sources" to discover available NDI sources
   2. Select a source from the list
@@ -157,6 +166,35 @@ Pan and tilt values range from -1.0 to 1.0, zoom from 0.0 to 1.0.
 rustv bird-dog 192.168.1.100 preset 1
 ```
 
+### Companion Integration
+
+Control RusTV via Companion software:
+
+#### Test Connection
+```bash
+rustv companion test
+```
+
+#### Change Layout
+```bash
+rustv companion set-layout "1+7 Layout"
+```
+
+#### Create Route
+```bash
+rustv companion route "Camera 1" "Monitor 1"
+```
+
+#### Remove Route
+```bash
+rustv companion unroute "Monitor 1"
+```
+
+#### Get Feedback
+```bash
+rustv companion feedback
+```
+
 ## Configuration
 
 The `rustv.toml` configuration file supports the following options:
@@ -184,9 +222,23 @@ routes = []
 [birddog]
 # BirdDog camera configurations
 cameras = []
+
+[gui]
+# Default layout to use on startup
+# Options: "Grid2x2", "Grid3x3", "Grid4x4", "PiP", "OneAndSeven", "OneAndNine"
+default_layout = "Grid2x2"
+# Window dimensions
+window_width = 1280.0
+window_height = 720.0
+
+[companion]
+# Enable Companion integration for streamdeck control
+enabled = false
+host = "localhost"
+port = 8888
 ```
 
-### Example Configuration with BirdDog Cameras
+### Example Configuration with BirdDog Cameras and Companion
 
 ```toml
 [ndi]
@@ -208,6 +260,16 @@ cameras = [
     { name = "Camera 1", ip_address = "192.168.1.101", ndi_name = "BirdDog-CAM1" },
     { name = "Camera 2", ip_address = "192.168.1.102", ndi_name = "BirdDog-CAM2" },
 ]
+
+[gui]
+default_layout = "OneAndSeven"
+window_width = 1920.0
+window_height = 1080.0
+
+[companion]
+enabled = true
+host = "localhost"
+port = 8888
 ```
 
 ## Architecture
