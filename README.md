@@ -45,10 +45,38 @@ A professional NDI (Network Device Interface) matrix viewer and router implement
 ## Installation
 
 ### Prerequisites
-- Rust 1.70 or later
 - NDI SDK installed on your system
 
+### Download Pre-built Binaries
+
+Download the latest release for your platform from the [Releases page](https://github.com/halcycon/RusTV/releases):
+
+- **Linux x86_64**: `rustv-linux-x86_64.tar.gz`
+- **Linux ARM64**: `rustv-linux-aarch64.tar.gz`
+- **macOS Intel**: `rustv-macos-x86_64.tar.gz`
+- **macOS Apple Silicon**: `rustv-macos-aarch64.tar.gz`
+- **Windows x86_64**: `rustv-windows-x86_64.exe.zip`
+
+Each release includes SHA256 checksums for verification.
+
+**Example (Linux x86_64)**:
+```bash
+# Download and extract
+wget https://github.com/halcycon/RusTV/releases/download/v1.0.0/rustv-linux-x86_64.tar.gz
+tar xzf rustv-linux-x86_64.tar.gz
+
+# Verify checksum (optional)
+wget https://github.com/halcycon/RusTV/releases/download/v1.0.0/rustv-linux-x86_64.tar.gz.sha256
+sha256sum -c rustv-linux-x86_64.tar.gz.sha256
+
+# Make executable and move to PATH
+chmod +x rustv
+sudo mv rustv /usr/local/bin/
+```
+
 ### Building from Source
+
+Requirements: Rust 1.70 or later
 
 ```bash
 git clone https://github.com/halcycon/RusTV.git
