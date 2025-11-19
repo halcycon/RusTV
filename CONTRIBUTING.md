@@ -271,6 +271,41 @@ All submissions require review. Be open to feedback and willing to make changes.
 
 By contributing, you agree that your contributions will be licensed under the MIT License.
 
+## Releases
+
+### Creating a Release
+
+Releases are automated through GitHub Actions. To create a new release:
+
+1. **Update Version**: Update the version in `Cargo.toml`
+
+2. **Create and Push Tag**:
+```bash
+git tag -a v1.0.0 -m "Release version 1.0.0"
+git push origin v1.0.0
+```
+
+3. **Automated Build**: The release workflow will automatically:
+   - Build binaries for multiple platforms and architectures:
+     - Linux x86_64 and ARM64
+     - macOS x86_64 and Apple Silicon (ARM64)
+     - Windows x86_64
+   - Create a GitHub Release
+   - Upload all binaries with checksums
+
+### Release Artifacts
+
+Each release includes:
+- Compressed binaries for each platform (.tar.gz for Unix, .zip for Windows)
+- SHA256 checksums for verification
+- Release notes
+
+### Supported Platforms
+
+- **Linux**: x86_64, aarch64 (ARM64)
+- **macOS**: x86_64 (Intel), aarch64 (Apple Silicon)
+- **Windows**: x86_64
+
 ## Questions?
 
 If you have questions, feel free to:
