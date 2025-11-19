@@ -1,9 +1,10 @@
 use serde::{Deserialize, Serialize};
 
 /// Represents different matrix view layouts
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum Layout {
     /// 2x2 grid (4 views)
+    #[default]
     Grid2x2,
     /// 3x3 grid (9 views)
     Grid3x3,
@@ -116,12 +117,6 @@ impl Layout {
                 rects
             }
         }
-    }
-}
-
-impl Default for Layout {
-    fn default() -> Self {
-        Layout::Grid2x2
     }
 }
 
