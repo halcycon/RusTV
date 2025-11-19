@@ -81,20 +81,39 @@ The RusTV GUI application provides a professional matrix viewer interface for ma
 ```
 ┌──────────────┬─┐
 │              │1│
-│              ├─┤
-│     Main     │2│
-│     View     ├─┤
+│     Main     ├─┤
+│     View     │2│
+│   (75x75%)   ├─┤
 │              │3│
 │              ├─┤
 │              │4│
-├──────────────┼─┤
+├──┬──┬──┬────┴─┘
+│5 │6 │7 │
+└──┴──┴──┘
+```
+Main view in top-left corner (75% width, 75% height)
+4 small views on right edge, 3 small views on bottom edge
+
+### 1+9 Layout
+```
+┌──────────────┬─┐
+│              │1│
+│     Main     ├─┤
+│     View     │2│
+│   (75x75%)   ├─┤
+│              │3│
+│              ├─┤
+│              │4│
+│              ├─┤
 │              │5│
 │              ├─┤
 │              │6│
-│              ├─┤
-│              │7│
-└──────────────┴─┘
+├──┬──┬──┬────┴─┘
+│7 │8 │9 │
+└──┴──┴──┘
 ```
+Main view in top-left corner (75% width, 75% height)
+6 small views on right edge, 3 small views on bottom edge
 
 ## Features
 
@@ -192,7 +211,8 @@ src/gui/
    - 2x2: Small setups with 4 cameras
    - 3x3/4x4: Larger installations
    - PiP: Focus on one source with reference
-   - 1+7: Main program output with multiple previews
+   - 1+7: Main program output with 7 previews (4 right, 3 bottom)
+   - 1+9: Main program output with 9 previews (6 right, 3 bottom)
 
 3. **Efficient Routing**: 
    - Keep Routing Panel open for quick changes
@@ -200,6 +220,56 @@ src/gui/
    - Remove old routes before creating new ones on same output
 
 4. **Monitoring**: The GUI updates automatically as sources come and go
+
+5. **Configuration**: Set default layout, window size, and Companion integration in `rustv.toml`
+
+## Companion Integration
+
+RusTV includes built-in support for Companion software (https://bitfocus.io/companion), which enhances streamdeck functionality.
+
+### Features
+
+- **Remote Control**: Control RusTV layout and routing from streamdeck buttons
+- **Feedback**: Get current state for button updates (layout, routes, sources)
+- **Layout Switching**: Change layouts with a button press
+- **Route Management**: Create and remove routes via streamdeck
+- **Custom Actions**: Trigger specific actions through Companion API
+
+### Configuration
+
+Enable Companion integration in `rustv.toml`:
+
+```toml
+[companion]
+enabled = true
+host = "localhost"
+port = 8888
+```
+
+### CLI Commands
+
+Test and control via CLI:
+
+```bash
+# Test connection
+rustv companion test
+
+# Change layout
+rustv companion set-layout "1+7 Layout"
+
+# Create route
+rustv companion route "Camera 1" "Monitor 1"
+
+# Get feedback
+rustv companion feedback
+```
+
+### Integration with Companion
+
+1. Enable Companion integration in configuration
+2. Configure Companion to send HTTP requests to RusTV
+3. Use RusTV's Companion commands in your button actions
+4. Get feedback for dynamic button updates
 
 ## Future Enhancements
 
@@ -210,3 +280,4 @@ Possible future additions:
 - Multi-viewer mode for multiple matrix routers
 - Touch screen optimization
 - Keyboard shortcuts for common actions
+- Enhanced Companion integration with automatic button configuration
