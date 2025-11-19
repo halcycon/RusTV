@@ -1,0 +1,16 @@
+[ndi]
+auto_discovery = true
+discovery_interval = 5
+static_sources = []
+
+[matrix]
+outputs = [
+    "Monitor 1",
+    "Monitor 2",
+    "Monitor 3",
+    "Monitor 4",
+]
+routes = []
+
+[birddog]
+cameras = []
