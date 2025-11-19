@@ -61,10 +61,10 @@ impl Layout {
         match self {
             Layout::Grid2x2 => {
                 vec![
-                    (0.0, 0.0, 0.5, 0.5),     // Top-left
-                    (0.5, 0.0, 0.5, 0.5),     // Top-right
-                    (0.0, 0.5, 0.5, 0.5),     // Bottom-left
-                    (0.5, 0.5, 0.5, 0.5),     // Bottom-right
+                    (0.0, 0.0, 0.5, 0.5), // Top-left
+                    (0.5, 0.0, 0.5, 0.5), // Top-right
+                    (0.0, 0.5, 0.5, 0.5), // Bottom-left
+                    (0.5, 0.5, 0.5, 0.5), // Bottom-right
                 ]
             }
             Layout::Grid3x3 => {
@@ -73,12 +73,7 @@ impl Layout {
                     .map(|i| {
                         let row = i / 3;
                         let col = i % 3;
-                        (
-                            col as f32 * size,
-                            row as f32 * size,
-                            size,
-                            size,
-                        )
+                        (col as f32 * size, row as f32 * size, size, size)
                     })
                     .collect()
             }
@@ -88,19 +83,14 @@ impl Layout {
                     .map(|i| {
                         let row = i / 4;
                         let col = i % 4;
-                        (
-                            col as f32 * size,
-                            row as f32 * size,
-                            size,
-                            size,
-                        )
+                        (col as f32 * size, row as f32 * size, size, size)
                     })
                     .collect()
             }
             Layout::PiP => {
                 vec![
-                    (0.0, 0.0, 1.0, 1.0),           // Main view (full screen)
-                    (0.7, 0.7, 0.25, 0.25),         // PiP view (bottom-right corner)
+                    (0.0, 0.0, 1.0, 1.0),   // Main view (full screen)
+                    (0.7, 0.7, 0.25, 0.25), // PiP view (bottom-right corner)
                 ]
             }
             Layout::OneAndSeven => {
@@ -113,23 +103,23 @@ impl Layout {
                 let small_width_bottom = 0.25;
                 let small_height_right = main_height / 4.0;
                 let small_height_bottom = 0.25;
-                
+
                 let mut rects = vec![
-                    (0.0, 0.0, main_width, main_height),  // Main view (top-left, 75% x 75%)
+                    (0.0, 0.0, main_width, main_height), // Main view (top-left, 75% x 75%)
                 ];
-                
+
                 // 4 small views on the right edge
                 for i in 0..4 {
                     let y = i as f32 * small_height_right;
                     rects.push((main_width, y, small_width_right, small_height_right));
                 }
-                
+
                 // 3 small views along the bottom edge
                 for i in 0..3 {
                     let x = i as f32 * small_width_bottom;
                     rects.push((x, main_height, small_width_bottom, small_height_bottom));
                 }
-                
+
                 rects
             }
             Layout::OneAndNine => {
@@ -142,23 +132,23 @@ impl Layout {
                 let small_width_bottom = 0.25;
                 let small_height_right = main_height / 6.0;
                 let small_height_bottom = 0.25;
-                
+
                 let mut rects = vec![
-                    (0.0, 0.0, main_width, main_height),  // Main view (top-left, 75% x 75%)
+                    (0.0, 0.0, main_width, main_height), // Main view (top-left, 75% x 75%)
                 ];
-                
+
                 // 6 small views on the right edge
                 for i in 0..6 {
                     let y = i as f32 * small_height_right;
                     rects.push((main_width, y, small_width_right, small_height_right));
                 }
-                
+
                 // 3 small views along the bottom edge
                 for i in 0..3 {
                     let x = i as f32 * small_width_bottom;
                     rects.push((x, main_height, small_width_bottom, small_height_bottom));
                 }
-                
+
                 rects
             }
         }
@@ -183,13 +173,13 @@ mod tests {
     fn test_layout_rects() {
         let rects = Layout::Grid2x2.calculate_view_rects();
         assert_eq!(rects.len(), 4);
-        
+
         let rects = Layout::PiP.calculate_view_rects();
         assert_eq!(rects.len(), 2);
-        
+
         let rects = Layout::OneAndSeven.calculate_view_rects();
         assert_eq!(rects.len(), 8);
-        
+
         let rects = Layout::OneAndNine.calculate_view_rects();
         assert_eq!(rects.len(), 10);
     }

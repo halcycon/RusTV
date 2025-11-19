@@ -26,11 +26,7 @@ pub enum CompanionAction {
     /// Set button text
     SetButtonText { page: u8, bank: u8, text: String },
     /// Set button color
-    SetButtonColor {
-        page: u8,
-        bank: u8,
-        color: String,
-    },
+    SetButtonColor { page: u8, bank: u8, color: String },
 }
 
 /// Feedback from Companion
