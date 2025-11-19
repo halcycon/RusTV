@@ -1,5 +1,6 @@
 mod birddog;
 mod config;
+mod gui;
 mod matrix;
 mod ndi;
 
@@ -26,6 +27,8 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Start the GUI application
+    Gui,
     /// Start the NDI discovery service
     Discover {
         /// Run in continuous mode
@@ -112,6 +115,10 @@ async fn main() -> Result<()> {
     info!("Configuration loaded from: {:?}", cli.config);
 
     match cli.command {
+        Some(Commands::Gui) => {
+            info!("Starting GUI application...");
+            gui::app::run_gui(config)?;
+        }
         Some(Commands::Discover { continuous }) => {
             cmd_discover(continuous).await?;
         }
@@ -129,10 +136,9 @@ async fn main() -> Result<()> {
             info!("Configuration file created at: {:?}", cli.config);
         }
         None => {
-            // Default: start interactive mode
-            info!("RusTV - NDI Matrix Viewer");
-            info!("Use --help for available commands");
-            cmd_discover(false).await?;
+            // Default: start GUI application
+            info!("Starting GUI application...");
+            gui::app::run_gui(config)?;
         }
     }
 

@@ -14,6 +14,65 @@ rustv init-config
 
 This creates `rustv.toml` with default settings.
 
+## GUI Application Examples
+
+### Example 1: Start the GUI Application
+
+Launch the graphical interface (default when no command is given):
+
+```bash
+rustv gui
+# or simply
+rustv
+```
+
+### Example 2: Using Different Layouts
+
+The GUI supports multiple layout configurations:
+
+1. **2x2 Grid**: Perfect for 4 sources in equal-sized views
+2. **3x3 Grid**: Display 9 sources simultaneously
+3. **4x4 Grid**: Maximum density with 16 views
+4. **Picture in Picture (PiP)**: One main view with a small overlay
+5. **1+7 Layout**: One large main view with 7 smaller views on the side
+
+To change layouts:
+1. Use the Layout panel on the left side
+2. Click on your desired layout
+3. The matrix view updates immediately
+
+### Example 3: Creating Routes in the GUI
+
+To route an NDI source to an output:
+
+1. Click "🔄 Refresh Sources" in the Routing Control panel
+2. Select a source from the "Available Sources" list
+3. Click on a view slot in the matrix (it will highlight)
+4. Click "➡ Route Selected" to create the route
+5. The view will now show the assigned input
+
+### Example 4: Removing Routes
+
+To remove a route:
+
+1. Scroll to "Current Routes" in the Routing Control panel
+2. Find the route you want to remove
+3. Click the "❌" button next to it
+4. The route is removed and the view slot becomes unassigned
+
+### Example 5: Multi-Monitor Workflow with GUI
+
+Ideal for a production control room:
+
+1. Start the GUI application
+2. Select the 4x4 Grid layout for maximum views
+3. Click "🔄 Refresh Sources" to discover all cameras
+4. Route each camera to a different output by:
+   - Selecting camera 1, clicking view slot 1, and routing
+   - Selecting camera 2, clicking view slot 2, and routing
+   - Continue for all cameras
+5. Switch to different layouts as needed during production
+
 ## NDI Discovery Examples
 
 ### Example 1: Quick Discovery Scan

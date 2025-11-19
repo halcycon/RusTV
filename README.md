@@ -1,8 +1,20 @@
 # RusTV - NDI Matrix Viewer
 
-A professional NDI (Network Device Interface) matrix viewer and router implemented in Rust, with support for BirdDog camera automation.
+A professional NDI (Network Device Interface) matrix viewer and router implemented in Rust, with support for BirdDog camera automation and a powerful GUI for matrix visualization.
 
 ## Features
+
+### GUI Application
+- **Matrix View Display**: Visual representation of all inputs and outputs
+- **Customizable Layouts**: Multiple layout options including:
+  - 2x2 Grid (4 views)
+  - 3x3 Grid (9 views)
+  - 4x4 Grid (16 views)
+  - Picture in Picture (PiP)
+  - 1+7 Layout (1 main + 7 small views)
+- **Interactive Routing**: Click-to-route interface for easy source assignment
+- **Real-time Source Discovery**: Automatically discover and list available NDI sources
+- **Visual Feedback**: See active routes and available inputs at a glance
 
 ### NDI Integration
 - **Automatic Source Discovery**: Continuously discover NDI sources on your network
@@ -11,7 +23,7 @@ A professional NDI (Network Device Interface) matrix viewer and router implement
 
 ### Matrix Routing
 - **Input/Output Routing**: Route any NDI input to any defined output
-- **Dynamic Routing**: Change routes on-the-fly via CLI
+- **Dynamic Routing**: Change routes on-the-fly via CLI or GUI
 - **Persistent Configuration**: Save and load routing configurations
 
 ### BirdDog Camera Integration
@@ -38,6 +50,26 @@ cargo build --release
 The compiled binary will be at `target/release/rustv`
 
 ## Usage
+
+### GUI Application
+
+Start the graphical interface (default when no command is specified):
+
+```bash
+rustv gui
+# or simply
+rustv
+```
+
+The GUI provides:
+- **Matrix View**: Visual grid showing all outputs and their assigned inputs
+- **Layout Selection**: Choose from different view layouts (2x2, 3x3, 4x4, PiP, 1+7)
+- **Routing Control**: 
+  1. Click "🔄 Refresh Sources" to discover available NDI sources
+  2. Select a source from the list
+  3. Click on a view slot in the matrix
+  4. Click "➡ Route Selected" to create the route
+- **Route Management**: View and remove active routes
 
 ### Initialize Configuration
 
