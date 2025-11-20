@@ -38,6 +38,8 @@ pub struct MatrixViewerApp {
     selected_source_idx: Option<usize>,
     /// Selected view slot for routing
     selected_view_idx: Option<usize>,
+    /// Manual input name for creating placeholder routes
+    manual_input_name: String,
 }
 
 impl MatrixViewerApp {
@@ -68,7 +70,7 @@ impl MatrixViewerApp {
 
         // Initialize NDI discovery
         let discovery = Arc::new(NdiDiscovery::new());
-        
+
         Self {
             layout: config.gui.default_layout,
             router: Arc::new(Mutex::new(router)),
@@ -79,23 +81,43 @@ impl MatrixViewerApp {
             show_routing_panel: true,
             selected_source_idx: None,
             selected_view_idx: None,
+            manual_input_name: String::new(),
         }
     }
 
     /// Update available sources from discovery
     fn update_sources(&mut self) {
         self.available_sources = self.discovery.get_sources();
+
+        // Auto-resolve placeholder routes when matching sources appear
+        if let Ok(mut router) = self.router.lock() {
+            for source in &self.available_sources {
+                // Add newly discovered sources to router
+                router.add_input(source.clone());
+            }
+        }
     }
 
-    /// Create or update a route
+    /// Create or update a route (including placeholder routes)
     fn create_route(&mut self, input: String, output: String) {
         if let Ok(mut router) = self.router.lock() {
-            // Add input to router if not already present
-            let source = NdiSource::new(input.clone(), input.clone());
-            router.add_input(source);
-            
-            // Create the route
-            if let Err(e) = router.route(&input, &output) {
+            // Try to add input to router if it's a discovered source
+            if let Some(source) = self
+                .available_sources
+                .iter()
+                .find(|s| s.name == input || s.url == input)
+            {
+                router.add_input(source.clone());
+            }
+
+            // Create the route (placeholder if source doesn't exist yet)
+            let result = if router.input_exists(&input) {
+                router.route(&input, &output)
+            } else {
+                router.route_placeholder(&input, &output)
+            };
+
+            if let Err(e) = result {
                 error!("Failed to create route: {}", e);
             } else {
                 // Update view slot
@@ -129,10 +151,7 @@ impl MatrixViewerApp {
         for (i, (x, y, w, h)) in rects.iter().enumerate().take(num_views) {
             let rect = egui::Rect::from_min_size(
                 available_rect.min
-                    + egui::vec2(
-                        available_rect.width() * x,
-                        available_rect.height() * y,
-                    ),
+                    + egui::vec2(available_rect.width() * x, available_rect.height() * y),
                 egui::vec2(
                     available_rect.width() * w - 4.0,
                     available_rect.height() * h - 4.0,
@@ -140,16 +159,16 @@ impl MatrixViewerApp {
             );
 
             let view_slot = &self.view_slots[i];
-            
+
             // Draw view rectangle
             let response = ui.allocate_rect(rect, egui::Sense::click());
-            
+
             let fill_color = if view_slot.selected {
                 egui::Color32::from_rgb(60, 80, 100)
             } else {
                 egui::Color32::from_rgb(40, 40, 50)
             };
-            
+
             ui.painter().rect_filled(rect, 4.0, fill_color);
             ui.painter().rect_stroke(
                 rect,
@@ -159,7 +178,18 @@ impl MatrixViewerApp {
 
             // Draw label
             let label_text = if let Some(input) = &view_slot.assigned_input {
-                format!("{}\n← {}", view_slot.output_name, input)
+                // Check if this is a placeholder route (input doesn't exist)
+                let is_placeholder = if let Ok(router) = self.router.lock() {
+                    !router.input_exists(input)
+                } else {
+                    false
+                };
+
+                if is_placeholder {
+                    format!("{}\n← {} (no feed)", view_slot.output_name, input)
+                } else {
+                    format!("{}\n← {}", view_slot.output_name, input)
+                }
             } else {
                 format!("{}\n(No input)", view_slot.output_name)
             };
@@ -188,10 +218,7 @@ impl MatrixViewerApp {
 
         for layout in Layout::all() {
             let is_selected = self.layout == layout;
-            if ui
-                .selectable_label(is_selected, layout.name())
-                .clicked()
-            {
+            if ui.selectable_label(is_selected, layout.name()).clicked() {
                 self.layout = layout;
                 info!("Layout changed to: {}", layout.name());
             }
@@ -211,7 +238,10 @@ impl MatrixViewerApp {
         ui.add_space(10.0);
 
         // Available sources
-        ui.label(format!("Available Sources ({})", self.available_sources.len()));
+        ui.label(format!(
+            "Available Sources ({})",
+            self.available_sources.len()
+        ));
         ui.separator();
 
         egui::ScrollArea::vertical()
@@ -227,10 +257,10 @@ impl MatrixViewerApp {
 
         ui.add_space(10.0);
 
-        // Route button
+        // Route button for selected source
         ui.horizontal(|ui| {
             let can_route = self.selected_source_idx.is_some() && self.selected_view_idx.is_some();
-            
+
             if ui
                 .add_enabled(can_route, egui::Button::new("➡ Route Selected"))
                 .clicked()
@@ -244,6 +274,37 @@ impl MatrixViewerApp {
                     ) {
                         self.create_route(source.url.clone(), view.output_name.clone());
                         self.selected_source_idx = None;
+                        self.view_slots[view_idx].selected = false;
+                    }
+                }
+            }
+        });
+
+        ui.add_space(10.0);
+        ui.separator();
+
+        // Manual input name entry for placeholder routes
+        ui.label("Or enter input name manually:");
+        ui.horizontal(|ui| {
+            ui.label("Input name:");
+            ui.text_edit_singleline(&mut self.manual_input_name);
+        });
+
+        ui.horizontal(|ui| {
+            let can_create_placeholder =
+                !self.manual_input_name.is_empty() && self.selected_view_idx.is_some();
+
+            if ui
+                .add_enabled(
+                    can_create_placeholder,
+                    egui::Button::new("➡ Create Placeholder Route"),
+                )
+                .clicked()
+            {
+                if let Some(view_idx) = self.selected_view_idx {
+                    if let Some(view) = self.view_slots.get(view_idx) {
+                        self.create_route(self.manual_input_name.clone(), view.output_name.clone());
+                        self.manual_input_name.clear();
                         self.view_slots[view_idx].selected = false;
                     }
                 }
@@ -273,7 +334,7 @@ impl MatrixViewerApp {
                         }
                     });
                 }
-                
+
                 if routes.is_empty() {
                     ui.label("No routes configured");
                 }
@@ -352,7 +413,7 @@ pub fn run_gui(config: Config) -> Result<()> {
         options,
         Box::new(|cc| {
             let app = MatrixViewerApp::new(cc, config);
-            
+
             // Start async initialization in background
             let discovery = Arc::clone(&app.discovery);
             tokio::spawn(async move {
@@ -360,7 +421,7 @@ pub fn run_gui(config: Config) -> Result<()> {
                     error!("Failed to start NDI discovery: {}", e);
                 }
             });
-            
+
             Ok(Box::new(app))
         }),
     )

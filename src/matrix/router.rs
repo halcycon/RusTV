@@ -71,6 +71,26 @@ impl MatrixRouter {
         Ok(())
     }
 
+    /// Create a placeholder route to an input that may not exist yet
+    /// This allows creating routes to NDI sources before they are discovered
+    pub fn route_placeholder(&mut self, input: &str, output: &str) -> Result<()> {
+        // Validate output exists
+        if !self.outputs.contains(&output.to_string()) {
+            anyhow::bail!("Output '{}' not found", output);
+        }
+
+        info!("Creating placeholder route: {} -> {}", input, output);
+        self.routes.insert(output.to_string(), input.to_string());
+        Ok(())
+    }
+
+    /// Check if an input for a route exists (is not a placeholder)
+    pub fn input_exists(&self, input: &str) -> bool {
+        self.inputs
+            .iter()
+            .any(|s| s.url == input || s.name == input)
+    }
+
     /// Remove a route for a specific output
     pub fn unroute(&mut self, output: &str) -> Option<String> {
         if let Some(input) = self.routes.remove(output) {
